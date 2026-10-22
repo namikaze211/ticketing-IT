@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Pengaturan Master Departemen & Kategori - IT Helpdesk{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header Section -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-gear text-indigo-600"></i> Pengaturan Master Data
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">Kelola daftar departemen dan kategori gangguan sesuai struktur organisasi perusahaan Anda.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Kelola Departemen -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-building text-blue-600"></i> Daftar Departemen
+                </h2>
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">{{ departments|length }}</span>
+            </div>
+
+            <!-- Form Tambah Departemen -->
+            <form action="{{ url_for('settings') }}" method="POST" class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <input type="hidden" name="action" value="add_dept">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Departemen Baru</label>
+                    <input type="text" name="dept_name" required placeholder="Contoh: Logistik & Ekspedisi"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Keterangan Singkat</label>
+                    <input type="text" name="dept_desc" placeholder="Contoh: Pengiriman barang antar cabang"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Departemen</span>
+                </button>
+            </form>
+
+            <!-- List Departemen Terdaftar -->
+            <ul class="divide-y divide-slate-100 text-xs max-h-80 overflow-y-auto">
+                {% for d in departments %}
+                <li class="py-2.5 flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-slate-800 block">{{ d.name }}</span>
+                        {% if d.description %}<span class="text-[11px] text-slate-400">{{ d.description }}</span>{% endif %}
+                    </div>
+                    <form action="{{ url_for('settings') }}" method="POST" onsubmit="return confirm('Hapus departemen {{ d.name }}?')">
+                        <input type="hidden" name="action" value="delete_dept">
+                        <input type="hidden" name="dept_id" value="{{ d.id }}">
+                        <button type="submit" class="text-rose-500 hover:text-rose-700 p-1.5" title="Hapus">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Kelola Kategori Masalah -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-tags text-indigo-600"></i> Kategori Masalah IT
+                </h2>
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">{{ categories|length }}</span>
+            </div>
+
+            <!-- Form Tambah Kategori -->
+            <form action="{{ url_for('settings') }}" method="POST" class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <input type="hidden" name="action" value="add_cat">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Kategori Baru</label>
+                    <input type="text" name="cat_name" required placeholder="Contoh: CCTV & Access Door"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Deskripsi Singkat</label>
+                    <input type="text" name="cat_desc" placeholder="Contoh: Kamera keamanan dan finger door lock"
+                        class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Kategori</span>
+                </button>
+            </form>
+
+            <!-- List Kategori Terdaftar -->
+            <ul class="divide-y divide-slate-100 text-xs max-h-80 overflow-y-auto">
+                {% for c in categories %}
+                <li class="py-2.5 flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-slate-800 block">{{ c.name }}</span>
+                        {% if c.description %}<span class="text-[11px] text-slate-400">{{ c.description }}</span>{% endif %}
+                    </div>
+                    <form action="{{ url_for('settings') }}" method="POST" onsubmit="return confirm('Hapus kategori {{ c.name }}?')">
+                        <input type="hidden" name="action" value="delete_cat">
+                        <input type="hidden" name="cat_id" value="{{ c.id }}">
+                        <button type="submit" class="text-rose-500 hover:text-rose-700 p-1.5" title="Hapus">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

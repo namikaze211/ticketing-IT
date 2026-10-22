@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Buat Tiket Gangguan IT - IT Helpdesk{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+    <!-- Kolom Kiri: Form Buat Tiket -->
+    <div class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <!-- Form Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 sm:p-8 text-white">
+            <div class="flex items-center space-x-3 mb-2">
+                <span class="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                    <i class="fa-solid fa-ticket text-xl"></i>
+                </span>
+                <span class="text-xs uppercase font-bold tracking-wider text-blue-200">Formulir Laporan Kendala IT</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Laporkan Gangguan atau Kebutuhan IT</h1>
+            <p class="text-blue-100 text-sm mt-1">Tim IT akan segera menganalisis dan menindaklanjuti kendala di departemen Anda.</p>
+        </div>
+
+        <!-- Form Body -->
+        <form action="{{ url_for('submit_ticket') }}" method="POST" class="p-6 sm:p-8 space-y-6">
+
+            <!-- Data Diri Pelapor & Departemen -->
+            <div class="border-b border-slate-100 pb-6">
+                <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-tag text-blue-600"></i> Identitas Pelapor & Departemen
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                            Nama Pelapor <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" name="reporter_name" required placeholder="Contoh: Budi Santoso"
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                            Departemen Anda <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select name="department" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white appearance-none transition-all pr-10 font-medium">
+                                <option value="" disabled selected>-- Pilih Departemen Anda --</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.name }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                            Ruangan / Posisi Meja
+                        </label>
+                        <input type="text" name="location" placeholder="Contoh: Lantai 2, R. Akuntansi Meja 4"
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                            No. WhatsApp / Telepon / Ext
+                        </label>
+                        <input type="text" name="contact" placeholder="Contoh: 08123456789 atau Ext 201"
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Gangguan -->
+            <div class="border-b border-slate-100 pb-6">
+                <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Detail Masalah IT
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                            Kategori Masalah <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select name="category" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white appearance-none transition-all pr-10">
+                                <option value="" disabled selected>-- Pilih Kategori Kendala --</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                            Tingkat Urgensi / Prioritas <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select name="priority" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white appearance-none transition-all pr-10 font-medium">
+                                <option value="Rendah">🟢 Rendah (Bisa ditunggu, tidak menghentikan kerja)</option>
+                                <option value="Normal" selected>🔵 Normal (Aktivitas terganggu sebagian)</option>
+                                <option value="Tinggi">🟠 Tinggi (Pekerjaan penting terhambat)</option>
+                                <option value="Darurat">🔴 Darurat (Seluruh proses operasional berhenti total)</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                        Judul Masalah / Singkat <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" name="subject" required placeholder="Contoh: PC mati mendadak saat mencetak faktur"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                        Deskripsi Lengkap Kendala <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea name="description" rows="4" required placeholder="Jelaskan kronologi kejadian, pesan error jika ada, nomor aset/nama perangkat, dan apa yang sudah dicoba..."
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all"></textarea>
+                    <p class="text-xs text-slate-400 mt-1">Sertakan detail pesan error atau kondisi lampu indikator jika perangkat fisik bermasalah.</p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex items-center justify-between pt-2">
+                <span class="text-xs text-slate-500">
+                    <i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i> Data disimpan aman di sistem lokal IT
+                </span>
+                <button type="submit"
+                    class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 hover:shadow-lg transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Kirim Tiket ke IT</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Kolom Kanan: Lacak Tiket Cepat & Info Alur -->
+    <div class="lg:col-span-4 space-y-6">
+
+        <!-- Kotak Lacak Tiket Cepat -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Lacak Status Tiket</h3>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Sudah pernah melapor? Masukkan nomor tiket Anda untuk memantau progres perbaikan.</p>
+
+            <form action="{{ url_for('track_ticket') }}" method="POST" class="space-y-3">
+                <div class="relative">
+                    <input type="text" name="ticket_number" required placeholder="Contoh: TIK-20261019-001"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm uppercase font-mono tracking-wider">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-all">
+                    Cek Status Sekarang
+                </button>
+            </form>
+        </div>
+
+        <!-- Alur Penanganan IT -->
+        <div class="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-2xl shadow-sm p-6 text-white">
+            <h3 class="text-sm font-bold tracking-tight uppercase text-indigo-300 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i> Alur Penanganan Tiket IT
+            </h3>
+            <ol class="space-y-4 text-xs">
+                <li class="flex items-start space-x-3">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/30 border border-blue-400 flex items-center justify-center font-bold text-blue-300">1</span>
+                    <div>
+                        <strong class="text-slate-100 block">Kirim Laporan</strong>
+                        <span class="text-slate-300">Anda mengisi formulir kendala di departemen Anda dan mendapatkan nomor tiket.</span>
+                    </div>
+                </li>
+                <li class="flex items-start space-x-3">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500/30 border border-amber-400 flex items-center justify-center font-bold text-amber-300">2</span>
+                    <div>
+                        <strong class="text-slate-100 block">Pemeriksaan & Tindakan IT</strong>
+                        <span class="text-slate-300">Tim IT menerima notifikasi, menugaskan teknisi, dan melakukan troubleshooting ke lokasi.</span>
+                    </div>
+                </li>
+                <li class="flex items-start space-x-3">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/30 border border-emerald-400 flex items-center justify-center font-bold text-emerald-300">3</span>
+                    <div>
+                        <strong class="text-slate-100 block">Selesai & Solusi Tercatat</strong>
+                        <span class="text-slate-300">Gangguan teratasi dan tercatat dalam statistik performa departemen.</span>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <!-- Panel Akses Cepat IT -->
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5">
+            <div class="flex items-center space-x-3 mb-2">
+                <i class="fa-solid fa-user-shield text-blue-600 text-lg"></i>
+                <h4 class="text-sm font-bold text-blue-900">Khusus Tim IT Helpdesk</h4>
+            </div>
+            <p class="text-xs text-blue-700 mb-3">Untuk melihat analisis trobel per departemen secara lengkap dan grafik statistik:</p>
+            <a href="{{ url_for('dashboard') }}" class="inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all">
+                <span>Buka Dashboard Analitik IT</span>
+                <i class="fa-solid fa-arrow-right ml-1.5"></i>
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

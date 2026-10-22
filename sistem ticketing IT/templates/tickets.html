@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Tiket Gangguan IT - Manajemen Tiket{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                    <i class="fa-solid fa-ticket-simple mr-1"></i> Data Tiket IT
+                </span>
+                <span class="text-xs text-slate-400">Total: {{ tickets|length }} Tiket Ditampilkan</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Manajemen Tiket IT</h1>
+            <p class="text-xs sm:text-sm text-slate-500">Filter berdasarkan departemen untuk melihat riwayat dan kendala yang dihadapi.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{{ url_for('export_excel') }}" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-file-excel text-sm"></i>
+                <span>Export Excel</span>
+            </a>
+            <a href="{{ url_for('index') }}" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i>
+                <span>Buat Tiket Baru</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter & Search Card -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <form method="GET" action="{{ url_for('ticket_list') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            
+            <!-- Filter Departemen (Penting untuk mengetahui trobel di departemen apa) -->
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Departemen</label>
+                <select name="department" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Semua Departemen --</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.name }}" {% if dept_filter == dept.name %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filter Status -->
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Status</label>
+                <select name="status" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Semua Status --</option>
+                    <option value="Menunggu" {% if status_filter == 'Menunggu' %}selected{% endif %}>Menunggu</option>
+                    <option value="Sedang Dikerjakan" {% if status_filter == 'Sedang Dikerjakan' %}selected{% endif %}>Sedang Dikerjakan</option>
+                    <option value="Selesai" {% if status_filter == 'Selesai' %}selected{% endif %}>Selesai</option>
+                </select>
+            </div>
+
+            <!-- Filter Kategori -->
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Kategori</label>
+                <select name="category" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Semua Kategori --</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.name }}" {% if category_filter == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Pencarian Bebas -->
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Pencarian</label>
+                <input type="text" name="search" value="{{ search_query }}" placeholder="No tiket, pelapor, kata kunci..."
+                    class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Tombol Terapkan & Reset -->
+            <div class="flex items-end gap-2">
+                <button type="submit" class="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-filter"></i>
+                    <span>Terapkan</span>
+                </button>
+                <a href="{{ url_for('ticket_list') }}" class="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition-colors" title="Reset Filter">
+                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Filter Indicators -->
+    {% if dept_filter or status_filter or category_filter or search_query %}
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+        <span class="text-slate-400 font-semibold">Filter aktif:</span>
+        {% if dept_filter %}
+        <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-building text-blue-500"></i> Dept: {{ dept_filter }}
+        </span>
+        {% endif %}
+        {% if status_filter %}
+        <span class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 font-bold">Status: {{ status_filter }}</span>
+        {% endif %}
+        {% if category_filter %}
+        <span class="px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 font-bold">Kategori: {{ category_filter }}</span>
+        {% endif %}
+        {% if search_query %}
+        <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold">Cari: "{{ search_query }}"</span>
+        {% endif %}
+        <a href="{{ url_for('ticket_list') }}" class="text-rose-600 hover:underline font-semibold ml-2">Hapus semua filter</a>
+    </div>
+    {% endif %}
+
+    <!-- Table Tiket -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        {% if tickets %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-bold border-b border-slate-200">
+                    <tr>
+                        <th class="py-3.5 px-5">No Tiket</th>
+                        <th class="py-3.5 px-5">Departemen & Pelapor</th>
+                        <th class="py-3.5 px-5">Kategori</th>
+                        <th class="py-3.5 px-5">Masalah</th>
+                        <th class="py-3.5 px-5">Prioritas</th>
+                        <th class="py-3.5 px-5">Status</th>
+                        <th class="py-3.5 px-5">Teknisi</th>
+                        <th class="py-3.5 px-5">Waktu Lapor</th>
+                        <th class="py-3.5 px-5 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium">
+                    {% for t in tickets %}
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3.5 px-5 font-mono font-bold text-blue-700">
+                            <a href="{{ url_for('ticket_detail', ticket_id=t.id) }}" class="hover:underline">
+                                {{ t.ticket_number }}
+                            </a>
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <div class="font-bold text-slate-900 flex items-center gap-1">
+                                <i class="fa-solid fa-building text-slate-400 text-[10px]"></i> {{ t.department }}
+                            </div>
+                            <div class="text-[11px] text-slate-500">{{ t.reporter_name }} {% if t.location %}• {{ t.location }}{% endif %}</div>
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">
+                                {{ t.category }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-5 max-w-xs">
+                            <div class="font-bold text-slate-800 truncate" title="{{ t.subject }}">{{ t.subject }}</div>
+                            <div class="text-[11px] text-slate-400 truncate" title="{{ t.description }}">{{ t.description }}</div>
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold
+                                {% if t.priority == 'Darurat' %}bg-rose-100 text-rose-800
+                                {% elif t.priority == 'Tinggi' %}bg-amber-100 text-amber-800
+                                {% elif t.priority == 'Normal' %}bg-blue-100 text-blue-800
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ t.priority }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold
+                                {% if t.status == 'Selesai' %}bg-emerald-100 text-emerald-800
+                                {% elif t.status == 'Sedang Dikerjakan' %}bg-blue-100 text-blue-800
+                                {% else %}bg-amber-100 text-amber-800{% endif %}">
+                                <span class="w-1.5 h-1.5 rounded-full mr-1.5
+                                    {% if t.status == 'Selesai' %}bg-emerald-500
+                                    {% elif t.status == 'Sedang Dikerjakan' %}bg-blue-500
+                                    {% else %}bg-amber-500{% endif %}"></span>
+                                {{ t.status }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-5 text-slate-700">
+                            {{ t.technician if t.technician else '<span class="text-slate-400 italic">Belum ada</span>'|safe }}
+                        </td>
+                        <td class="py-3.5 px-5 text-slate-500 text-[11px] whitespace-nowrap">
+                            {{ t.created_at[:16] }}
+                        </td>
+                        <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                            <a href="{{ url_for('ticket_detail', ticket_id=t.id) }}"
+                                class="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition-all">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i>
+                                <span>Detail</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-12 text-center text-slate-400">
+            <i class="fa-solid fa-ticket-simple text-4xl mb-3 text-slate-300"></i>
+            <p class="text-sm font-semibold text-slate-600">Tidak ada tiket yang sesuai dengan filter.</p>
+            <p class="text-xs text-slate-400 mt-1">Coba ganti filter departemen atau kata kunci pencarian Anda.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

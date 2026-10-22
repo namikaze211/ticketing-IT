@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Analisis Trobel per Departemen - IT Helpdesk{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
+                    <i class="fa-solid fa-sitemap mr-1"></i> Analitik Khusus Departemen
+                </span>
+                <span class="text-xs text-slate-400">Evaluasi Masalah IT & Performa Infrastruktur</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Analisis Trobel Tiap Departemen</h1>
+            <p class="text-xs sm:text-sm text-slate-500">Membantu manajemen IT mengidentifikasi departemen mana yang paling rentan mengalami gangguan dan jenis kendala dominannya.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('export_excel') }}" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-file-excel text-sm"></i>
+                <span>Download Laporan Excel</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Grid Departemen Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {% for dept in dept_records %}
+        {% set percent = (dept.fixed_trouble / dept.total_trouble * 100)|round if dept.total_trouble > 0 else 0 %}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-all flex flex-col justify-between">
+            <div>
+                <!-- Header Card Departemen -->
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 text-white flex items-center justify-center text-base shadow-sm">
+                            <i class="fa-solid fa-building"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900 leading-snug">{{ dept.department }}</h2>
+                            <span class="text-[11px] text-slate-400">Terakhir lapor: {{ dept.last_reported[:10] }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Trobel Badge -->
+                <div class="flex items-baseline space-x-2 my-4">
+                    <span class="text-3xl font-black text-slate-900">{{ dept.total_trouble }}</span>
+                    <span class="text-xs font-bold text-slate-500">Total Kendala Dilaporkan</span>
+                </div>
+
+                <!-- Status Breakdown Pills -->
+                <div class="grid grid-cols-3 gap-2 py-3 border-y border-slate-100 text-center">
+                    <div class="bg-amber-50 p-2 rounded-xl border border-amber-100">
+                        <span class="block text-amber-700 font-bold text-sm">{{ dept.open_trouble }}</span>
+                        <span class="text-[10px] uppercase font-bold text-amber-600">Menunggu</span>
+                    </div>
+                    <div class="bg-blue-50 p-2 rounded-xl border border-blue-100">
+                        <span class="block text-blue-700 font-bold text-sm">{{ dept.ongoing_trouble }}</span>
+                        <span class="text-[10px] uppercase font-bold text-blue-600">Diproses</span>
+                    </div>
+                    <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-100">
+                        <span class="block text-emerald-700 font-bold text-sm">{{ dept.fixed_trouble }}</span>
+                        <span class="text-[10px] uppercase font-bold text-emerald-600">Selesai</span>
+                    </div>
+                </div>
+
+                <!-- Masalah yang Sering Muncul di Departemen Ini -->
+                <div class="mt-4">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                        <i class="fa-solid fa-chart-simple mr-1 text-indigo-500"></i> Kategori Masalah Terbanyak:
+                    </span>
+                    <div class="flex flex-wrap gap-1.5">
+                        {% if dept_issues[dept.department] %}
+                            {% for issue in dept_issues[dept.department] %}
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium text-[11px]">
+                                {{ issue }}
+                            </span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-slate-400 text-xs italic">Belum ada data detail</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Lihat Semua Tiket Dept Ini -->
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-xs font-semibold text-emerald-600">
+                    <i class="fa-solid fa-circle-check mr-1"></i> {{ percent }}% Selesai
+                </span>
+                <a href="{{ url_for('ticket_list', department=dept.department) }}"
+                    class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors">
+                    <span>Lihat Tiket Divisi Ini</span>
+                    <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
